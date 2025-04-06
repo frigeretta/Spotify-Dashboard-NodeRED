@@ -1,0 +1,23 @@
+[
+    {
+        "id": "e96d41e7085ae37f",
+        "type": "function",
+        "z": "916ddcd4980e8880",
+        "name": "Generate Top Artists",
+        "func": "const allSongs = flow.get(\"allSongs\") || [];\nconst artistStats = {};\n\nfunction formatDuration(ms) {\n    const totalSeconds = Math.floor(ms / 1000);\n    const hours = Math.floor(totalSeconds / 3600);\n    const minutes = Math.floor((totalSeconds % 3600) / 60);\n    const seconds = totalSeconds % 60;\n\n    let result = \"\";\n    if (hours > 0) result += hours + \"h \";\n    if (minutes > 0 || hours > 0) result += minutes + \"m \";\n    result += seconds + \"s\";\n    return result.trim();\n}\n\nallSongs.forEach(song => {\n    const artist = song.artist;\n    if (!artist || artist.toLowerCase() === \"unknown\") return;\n\n    if (!artistStats[artist]) {\n        artistStats[artist] = {\n            name: artist,\n            plays: 0,\n            totalDurationMs: 0\n        };\n    }\n\n    artistStats[artist].plays++;\n    artistStats[artist].totalDurationMs += song.duration || 0;\n});\n\nconst topArtists = Object.values(artistStats)\n    .sort((a, b) => b.plays - a.plays) // sort by play count\n    .map(artist => ({\n        name: artist.name,\n        plays: artist.plays,\n        formattedDuration: formatDuration(artist.totalDurationMs)\n    }));\n\nmsg.payload = {\n    topArtists: topArtists\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 140,
+        "y": 680,
+        "wires": [
+            [
+                "66fe5b6e037463ea",
+                "ec155f3f62f407c4"
+            ]
+        ]
+    }
+]
